@@ -53,15 +53,16 @@ pip install -r requirements.txt
 ## 📊 Dataset
 
 The project uses the **CIFAKE dataset**, which contains:
-- Real images from CIFAR-10
-- AI-generated fake images
+- Real images collected from CIFAR-10
+- AI-generated synthetic images
 
-📌 **Dataset source**:  
-https://github.com/vladan-stojnic/CIFAKE
+📌 **Dataset source (Kaggle)**:  
+https://www.kaggle.com/datasets/birdy654/cifake-real-and-ai-generated-synthetic-images
 
 ⚠️ **Note**: The CIFAKE dataset is not included in this repository and must be downloaded separately due to size constraints.
 
 Dataset structure:
+
 
 ```
 data/CIFAKE/
