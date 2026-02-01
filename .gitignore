@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+.Python
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# PyTorch
+runs/
+*.pth
+*.pt
+*.ckpt
+
+# Data (large datasets)
+data/
+test_images/
+
+# Generated files
+*.log
+*.csv
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Environment variables
+.env
+.env.local
