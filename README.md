@@ -152,20 +152,4 @@ Model performance metrics are saved in:
 
 ⚠️ **Note**: Trained model weights and datasets are not included in this repository due to size constraints. Please train the model locally to generate them.
 
-## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📝 License
-
-This project is intended for academic and educational purposes only.
-
-## 🙏 Acknowledgments
-
-- CIFAKE dataset creators
-- PyTorch and torchvision teams
-- ResNet architecture (He et al.)
-
----
-
-**Note**: This project was developed as part of academic coursework on real vs AI image detection.
