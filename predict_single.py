@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageOps
 
 import os
 import threading
@@ -19,6 +19,15 @@ HIGHLIGHT_COLOR = "#FF7D00"
 ACCENT_BG = "#2A2A2A"
 INFO_BG = "#252525"
 BANNER_BG = "#101010"
+
+# Helper function for preprocessing
+def center_crop_square(img: Image.Image) -> Image.Image:
+    """Crop image to a square using the center."""
+    w, h = img.size
+    side = min(w, h)
+    left = (w - side) // 2
+    top = (h - side) // 2
+    return img.crop((left, top, left + side, top + side))
 
 
 class CIFAKEDetectorGUI:
@@ -57,7 +66,7 @@ class CIFAKEDetectorGUI:
         self.model = self._build_model()
         self._load_model()
 
-        # Transformations 
+        # Model input transformations (match val_tfms from training exactly)
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
@@ -396,6 +405,7 @@ class CIFAKEDetectorGUI:
             button_frame,
             text="Predict",
             command=self.start_detection,
+            state=tk.DISABLED,
             **button_style
         )
         self.detect_button.pack(side=tk.LEFT, padx=10)
@@ -456,27 +466,15 @@ class CIFAKEDetectorGUI:
         )
         if file_path:
             self.image_path = file_path
-            image = Image.open(file_path).convert("RGB")
-
-            width, height = image.size
-            max_size = 350
-
-            if width > height:
-                new_width = max_size
-                new_height = int(height * (max_size / width))
-            else:
-                new_height = max_size
-                new_width = int(width * (max_size / height))
-
-            image = image.resize((new_width, new_height), Image.LANCZOS)
+            # Clean preview: EXIF-corrected, square cropped, high-quality resize
+            image = ImageOps.exif_transpose(Image.open(file_path)).convert("RGB")
+            image = center_crop_square(image)
+            image = image.resize((350, 350), Image.Resampling.LANCZOS)
             self.display_image = ImageTk.PhotoImage(image)
             self.image_label.config(image=self.display_image, text="")
+            self.detect_button.config(state=tk.NORMAL)
 
     def start_detection(self):
-        if not self.image_path:
-            messagebox.showerror("Error", "Please upload an image first!")
-            return
-
         if self.is_processing:
             return
 
@@ -495,7 +493,7 @@ class CIFAKEDetectorGUI:
     def detect_image(self):
         start_time = time.time()
         try:
-            img = Image.open(self.image_path).convert("RGB")
+            img = ImageOps.exif_transpose(Image.open(self.image_path)).convert("RGB")
             img_tensor = self.transform(img).unsqueeze(0).to(self.device)
 
             with torch.no_grad():
@@ -536,7 +534,7 @@ class CIFAKEDetectorGUI:
         self.progress.stop()
         self.progress.pack_forget()
         self.processing_label.pack_forget()
-        self.detect_button.config(state=tk.NORMAL)
+        self.detect_button.config(state=(tk.NORMAL if self.image_path else tk.DISABLED))
         self.is_processing = False
 
     def hide_result(self):
