@@ -13,9 +13,7 @@ import torch.nn as nn
 from torchvision import models, transforms
 
 
-# -----------------------------
-# THEME (Neon Blue / Glassy Dark)
-# -----------------------------
+# Theme
 ctk.set_appearance_mode("dark")
 
 BG         = "#070A12"
@@ -28,8 +26,8 @@ MUTED      = "#8FA3BF"
 NEON_BLUE  = "#4DA3FF"
 NEON_CYAN  = "#2EF2FF"
 
-GOOD       = "#3DFFB5"  # REAL
-BAD        = "#FF4D8D"  # FAKE
+GOOD       = "#3DFFB5"  
+BAD        = "#FF4D8D"  
 
 APP_TITLE  = "REAL vs AI Image Detector (CIFAKE)"
 
@@ -86,9 +84,7 @@ class CIFAKEImageDetectorGUI:
         # init stats
         self._update_stats(conf=None, infer_ms=None, stamp=None)
 
-    # -----------------------------
     # Model
-    # -----------------------------
     def _build_model(self):
         model = models.resnet50(weights=None)
         model.fc = nn.Sequential(
@@ -115,9 +111,7 @@ class CIFAKEImageDetectorGUI:
         self.model.to(self.device)
         self.model.eval()
 
-    # -----------------------------
     # Layout
-    # -----------------------------
     def _setup_layout(self):
         # root grid
         self.root.grid_columnconfigure(0, weight=1)
@@ -199,7 +193,7 @@ class CIFAKEImageDetectorGUI:
         )
         self.preview_label.grid(row=0, column=0, sticky="nsew", padx=16, pady=16)
 
-        # info row (optional)
+        # info row 
         self.meta_label = ctk.CTkLabel(
             self.preview_card,
             text="Resolution: --   |   Format: --",
@@ -373,9 +367,7 @@ class CIFAKEImageDetectorGUI:
         self.log_box.insert("end", "• Ready.\n")
         self.log_box.configure(state="disabled")
 
-    # -----------------------------
     # Actions
-    # -----------------------------
     def upload_image(self):
         path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.png *.jpeg")])
         if not path:
@@ -385,6 +377,7 @@ class CIFAKEImageDetectorGUI:
 
         # Load + clean preview (EXIF fix, center crop, high-quality resize)
         img = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
+        img = center_crop_square(img) 
 
         # meta
         w, h = img.size
@@ -428,16 +421,17 @@ class CIFAKEImageDetectorGUI:
             x = self.transform(img).unsqueeze(0).to(self.device)
 
             with torch.no_grad():
-                logits = self.model(x)
-                probs = torch.softmax(logits, dim=1)[0]
-                pred = torch.argmax(probs).item()
-                conf = probs[pred].item() * 100
+                outputs = self.model(x)
+                probs = torch.softmax(outputs, dim=1)
+                pred_idx = torch.argmax(probs, dim=1).item()
+
+                conf = probs[0, pred_idx].item() * 100
 
             elapsed = (time.time() - start) * 1000
             self.detection_count += 1
             stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            self.root.after(0, lambda: self.update_ui(pred, conf, elapsed, stamp))
+            self.root.after(0, lambda: self.update_ui(pred_idx, conf, elapsed, stamp))
 
         except Exception as e:
             self.root.after(0, lambda: messagebox.showerror("Error", str(e)))
@@ -446,7 +440,8 @@ class CIFAKEImageDetectorGUI:
             self.root.after(0, lambda: setattr(self, "is_processing", False))
 
     def update_ui(self, pred, conf, elapsed, stamp):
-        label = self.classes[pred]  # "FAKE" or "REAL"
+        idx_to_label = {0: "FAKE", 1: "REAL"}
+        label = idx_to_label[pred]
 
         if label == "REAL":
             big = "✓ REAL"

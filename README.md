@@ -19,7 +19,6 @@ This project implements a binary image classifier that distinguishes between rea
 
 ```
 ├── main_cifake.py           # Main training script
-├── predict_single.py        # Single image prediction
 ├── gui_cifake.py           # GUI application for predictions
 ├── evaluate_test.py        # Evaluation on test set
 ├── visualize_results.py    # Visualization of results
@@ -99,12 +98,6 @@ Features:
 - Confidence score display
 - Real-time prediction with confidence scores
 - Dark-themed modern interface
-
-### Single Image Prediction
-
-```bash
-python predict_single.py <path_to_image>
-```
 
 ### Evaluate Model
 

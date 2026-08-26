@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 import numpy as np
-import pandas as pd # type: ignore
+import pandas as pd 
 import torch
 import torch.nn as nn
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report # type: ignore
@@ -58,7 +58,7 @@ val_tfms = transforms.Compose([
 full_train = datasets.ImageFolder(root=str(TRAIN_DIR), transform=train_tfms)
 class_to_idx = full_train.class_to_idx  # {'FAKE':0, 'REAL':1}
 idx_to_class = {v: k for k, v in class_to_idx.items()}
-print("Class mapping:", class_to_idx)
+print("class_to_idx:", class_to_idx)
 
 val_ratio = 0.2
 val_len = int(len(full_train) * val_ratio)
@@ -166,4 +166,4 @@ if __name__ == "__main__":
     })
     csv_path = OUT_DIR / "test_predictions.csv"
     df.to_csv(csv_path, index=False, encoding="utf-8")
-    print(f"\n📄 Predictions saved to: {csv_path}")
+    print(f"\n Predictions saved to: {csv_path}")
